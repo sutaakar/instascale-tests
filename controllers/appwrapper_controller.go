@@ -81,7 +81,10 @@ const (
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *AppWrapperReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
+	logger := ctrl.LoggerFrom(ctx)
+	logger.Info(
+		"AppWrapper deleted, scaling down machineset;;;;;;;;exisecutng..............",
+	)
 	_ = log.FromContext(ctx)
 	// todo: Move the getOCMClusterID call out of reconcile loop.
 	// Only reason we are calling it here is that the client is not able to make
