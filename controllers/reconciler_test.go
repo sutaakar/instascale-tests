@@ -16,6 +16,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"k8s.io/klog"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -30,7 +31,7 @@ var (
 	err       error
 )
 
-func TestReconciler(t *testing.T) {
+func startEnvTest(t *testing.T) *envtest.Environment {
 	test := With(t)
 	//specify testEnv configuration
 	testEnv = &envtest.Environment{
@@ -42,8 +43,12 @@ func TestReconciler(t *testing.T) {
 	cfg, err = testEnv.Start()
 	test.Expect(err).NotTo(HaveOccurred())
 
-	defer testEnv.Stop()
+	defer teardownTestEnv(testEnv)
+	return testEnv
+}
 
+func establishClient(t *testing.T) {
+	test := With(t)
 	err = mcadv1beta1.AddToScheme(scheme.Scheme)
 	test.Expect(err).NotTo(HaveOccurred())
 
@@ -65,11 +70,24 @@ func TestReconciler(t *testing.T) {
 	test.Expect(err).ToNot(HaveOccurred())
 
 	go func() {
+
 		err = k8sManager.Start(ctrl.SetupSignalHandler())
 		test.Expect(err).ToNot(HaveOccurred())
 	}()
 
 	time.Sleep(5 * time.Second)
+}
+
+func teardownTestEnv(testEnv *envtest.Environment) {
+	if err := testEnv.Stop(); err != nil {
+		klog.Errorf("Error stopping test Environment : %v\n", err)
+	}
+}
+
+func TestReconciler(t *testing.T) {
+	testEnv = startEnvTest(t)
+	defer teardownTestEnv(testEnv)
+
 	app := &mcadv1beta1.AppWrapper{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "mnist",
@@ -87,11 +105,11 @@ func TestReconciler(t *testing.T) {
 								Replicas: 1,
 								Requests: apiv1.ResourceList{
 									apiv1.ResourceCPU:    resource.MustParse("250m"),
-									apiv1.ResourceMemory: resource.MustParse("512Mi"),
+									apiv1.ResourceMemory: resource.MustParse("1G"),
 								},
 								Limits: apiv1.ResourceList{
 									apiv1.ResourceCPU:    resource.MustParse("1"),
-									apiv1.ResourceMemory: resource.MustParse("1G"),
+									apiv1.ResourceMemory: resource.MustParse("2G"),
 								},
 							},
 						},
@@ -102,10 +120,11 @@ func TestReconciler(t *testing.T) {
 	}
 
 	mcadClient, err := mc.NewForConfig(cfg)
-	test.Expect(err).NotTo(HaveOccurred())
+	With(t).Expect(err).ToNot(HaveOccurred())
 
-	_, err = mcadClient.WorkloadV1beta1().AppWrappers("default").Create(test.Ctx(), app, metav1.CreateOptions{})
-	test.Expect(err).NotTo(HaveOccurred())
+	_, err = mcadClient.WorkloadV1beta1().AppWrappers("default").Create(With(t).Ctx(), app, metav1.CreateOptions{})
+	With(t).Expect(err).ToNot(HaveOccurred())
 
 	time.Sleep(3 * time.Second)
+
 }
