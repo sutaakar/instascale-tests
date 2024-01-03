@@ -43,7 +43,8 @@ func startEnvTest(t *testing.T) *envtest.Environment {
 	cfg, err = testEnv.Start()
 	test.Expect(err).NotTo(HaveOccurred())
 
-	defer teardownTestEnv(testEnv)
+	//	defer teardownTestEnv(testEnv)
+	establishClient(t)
 	return testEnv
 }
 
