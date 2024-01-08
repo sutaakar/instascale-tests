@@ -6,6 +6,7 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/openshift-online/ocm-sdk-go v0.1.368
 	github.com/openshift/api v0.0.0-20230213134911-7ba313770556
+	github.com/openshift/client-go v0.0.0-20221019143426-16aed247da5c
 	github.com/project-codeflare/codeflare-common v0.0.0-20231213113014-78776a40b4a8
 	github.com/project-codeflare/multi-cluster-app-dispatcher v1.38.1
 	k8s.io/api v0.26.3
@@ -50,7 +51,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/openshift/client-go v0.0.0-20221019143426-16aed247da5c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
